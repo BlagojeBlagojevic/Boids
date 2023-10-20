@@ -22,8 +22,8 @@
 #undef main                //275 183
 
 
-#define width  800
-#define height 600
+#define width  400
+#define height 400
 #define Nboids 500
 #define factorV 8        //factor for speed 
 #define factorCm 100    //factor for movment tovord center of a mass
@@ -51,7 +51,7 @@ void RandomBoids(BOIDS *boids)
 	//srand(10000);
 	
 
-#pragma omp for
+
 
 	
 	for(size_t i = 0; i < Nboids; i++){
@@ -84,7 +84,7 @@ void DrawBoids(SDL_Renderer *renderer,BOIDS *boids){
 	SDL_RenderClear(renderer);
 	SDL_SetRenderDrawColor(renderer,255,255,255,255);
 
-#pragma omp for
+
 	for(size_t i = 0; i < Nboids; i++){
 		SDL_SetRenderDrawColor(renderer,boids[i].color[0],boids[i].color[1],boids[i].color[2],boids[i].color[3]);
 		SDL_RenderDrawPoint(renderer,boids[i].positions[0],boids[i].positions[1]);
@@ -113,7 +113,7 @@ void MoveTowardCenterOfMassLocal(BOIDS *boids)
 {
 	float Cmass[2][Nboids];
 	
-#pragma omp for
+
 	
 	for(size_t i = 0; i < Nboids; i++)
 		for(size_t j = 0; j < 2; j++)
@@ -121,7 +121,7 @@ void MoveTowardCenterOfMassLocal(BOIDS *boids)
 			
 		
 	
-#pragma omp for
+
 	
 	for(size_t i = 0; i < Nboids; i++){
 		size_t count = 0;
@@ -150,7 +150,7 @@ void MoveTowardCenterOfMassLocal(BOIDS *boids)
 void CheckNearest(BOIDS *boids){
 	
 	
-#pragma omp for
+
 	for(size_t i = 0 ; i < Nboids; i++){
 		for(size_t j = 0 ; j < Nboids; j++){	
 			if(boids[i].positions[0] == boids[j].positions[0]){
@@ -180,7 +180,7 @@ void UpdateSpeed(BOIDS *boids){
 	Cmass[1]=0;
 	
 
-#pragma omp for
+
 	
 	
 	for(size_t i = 0; i < Nboids; i++){
@@ -193,7 +193,6 @@ void UpdateSpeed(BOIDS *boids){
 	//system("pause");
 	
 
-	#pragma omp for
 		for(size_t i = 0; i < Nboids; i++){
 		boids[i].speed[0]+=(int)Cmass[0] / factorV+rand_neg();
 		boids[i].speed[1]+=(int)Cmass[1] / factorV+rand_neg();
@@ -250,10 +249,13 @@ void BoidsUpdate(BOIDS *boids){
 		//MoveTowardCenterOfMass(boids);
 		
 		
-#pragma omp parralel
+#pragma omp parralel shared
+{
 		MoveTowardCenterOfMassLocal(boids);
 		CheckNearest(boids);
 	    UpdateSpeed(boids);
+}
+	
 		
 		
 		for(size_t i = 0; i < Nboids; i++){
