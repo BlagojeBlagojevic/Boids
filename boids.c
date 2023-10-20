@@ -22,8 +22,8 @@
 #undef main                //275 183
 
 
-#define width  400
-#define height 400
+#define width  800
+#define height 600
 #define Nboids 500
 #define factorV 8        //factor for speed 
 #define factorCm 100    //factor for movment tovord center of a mass
@@ -40,7 +40,7 @@ typedef struct BOIDS{
 }BOIDS;
 
 float rand_neg(){
-	//return 0;
+	return 0;
 	if(rand()%3==0)
 		return -1.0*(rand()%3);
 	return rand()%3;
@@ -55,16 +55,9 @@ void RandomBoids(BOIDS *boids)
 
 	
 	for(size_t i = 0; i < Nboids; i++){
-		boids[i].positions[0] = (rand())%300;
-		boids[i].positions[1] = (rand())%300;
-			if(i>250){
-				boids[i].positions[0] = (rand())%60+300;
-				boids[i].positions[1] = (rand())%100+300;	
-		}
-			if(i>350){
-				boids[i].positions[0] = (rand())%60+500;
-				boids[i].positions[1] = (rand())%100+300;	
-		}
+		boids[i].positions[0] = (rand())%200;
+		boids[i].positions[1] = (rand())%200;
+	
 	
 	
 		boids[i].acceleration[0] = 0;
@@ -266,9 +259,9 @@ void BoidsUpdate(BOIDS *boids){
 		
 		
 		if(boids[i].speed[0]>5)
-			boids[i].speed[0]=5;
+			boids[i].speed[0]=0;
 		if(boids[i].speed[1]>5)
-			boids[i].speed[1]=5;
+			boids[i].speed[1]=0;
 		}
 		CheckBoundury(boids);
 
@@ -290,7 +283,7 @@ int main()
 		DrawBoids(renderer,&boids);
 		
 		BoidsUpdate(&boids);
-		//SDL_Delay(1);
+		SDL_Delay(1);
 		//system("pause");
 	}
 	DrawBoids(renderer,&boids);
