@@ -22,12 +22,12 @@
 #undef main                //275 183
 
 
-#define width  800
+#define width  1000
 #define height 600
-#define Nboids 500
-#define factorV 8        //factor for speed 
+#define Nboids 200
+#define factorV 1      //factor for speed 
 #define factorCm 100    //factor for movment tovord center of a mass
-#define radius 100           //Grouping radius
+#define radius 1000           //Grouping radius
 
 typedef struct BOIDS{
 	
@@ -40,10 +40,10 @@ typedef struct BOIDS{
 }BOIDS;
 
 float rand_neg(){
-	return 0;
-	if(rand()%3==0)
-		return -1.0*(rand()%3);
-	return rand()%3;
+	//return 1;
+	if(rand()%2==0)
+		return -1.0*(rand()%2);
+	return rand()%6;
 }
 void RandomBoids(BOIDS *boids)
 {
@@ -55,8 +55,8 @@ void RandomBoids(BOIDS *boids)
 
 	
 	for(size_t i = 0; i < Nboids; i++){
-		boids[i].positions[0] = (rand())%200;
-		boids[i].positions[1] = (rand())%200;
+		boids[i].positions[0] = (rand())%100;
+		boids[i].positions[1] = (rand())%100;
 	
 	
 	
@@ -74,7 +74,22 @@ void RandomBoids(BOIDS *boids)
 void DrawBoids(SDL_Renderer *renderer,BOIDS *boids){
 	
 	
+	SDL_Rect rect1,rect2;
+	rect1.x = width/2;
+	rect1.y = 50;
+	rect1.w = 10;
+	rect1.h = 300;
+	
+	rect2.x = width/2;
+	rect2.y = 450;
+	rect2.w = 10;
+	rect2.h = 100;
+	
+	
 	SDL_RenderClear(renderer);
+	SDL_SetRenderDrawColor(renderer,255,255,255,0);
+	SDL_RenderFillRect(renderer,&rect1);
+	//SDL_RenderFillRect(renderer,&rect2);
 	SDL_SetRenderDrawColor(renderer,255,255,255,255);
 
 
@@ -146,14 +161,14 @@ void CheckNearest(BOIDS *boids){
 
 	for(size_t i = 0 ; i < Nboids; i++){
 		for(size_t j = 0 ; j < Nboids; j++){	
-			if(boids[i].positions[0] == boids[j].positions[0]){
+			if((i!=j)&&(boids[i].positions[0] == boids[j].positions[0])){
 				boids[i].positions[0] += 3;
 				boids[i].positions[1] += 3;
 				//boids[i].speed[1] -= 1;
 				//boids[i].positions[1]-=(boids[i].positions[1] - boids[j].positions[1]);
 			}
 			
-			if(boids[i].positions[1] == boids[j].positions[1] ){
+			if((i!=j)&&(boids[i].positions[1] == boids[j].positions[1]) ){
 				boids[i].positions[1] += 3;
 				boids[i].positions[0] += 3;
 				//boids[i].speed[1] += 1;
@@ -203,16 +218,17 @@ void CheckBoundury(BOIDS *boids)
 		if(boids[i].positions[0] < 0){
 			
 			boids[i].positions[0] = width - 10;
-			
-			boids[i].speed[0]=0;
-			boids[i].speed[1]=0;
+
+			boids[i].speed[0]=-10;
+			boids[i].speed[1]=-10;
 			
 		}
 		
 		if(boids[i].positions[0] > width){
 			
 			boids[i].positions[0] = 10;
-			boids[i].speed[0]=0;
+
+			boids[i].speed[0]=10;
 			boids[i].speed[1]=0;
 			
 		}
@@ -221,6 +237,7 @@ void CheckBoundury(BOIDS *boids)
 		//Y axis
 		if(boids[i].positions[1] < 0){
 			boids[i].positions[1] = height-10;
+			
 			boids[i].speed[0]=0;
 			boids[i].speed[1]=0;
 			
@@ -228,11 +245,28 @@ void CheckBoundury(BOIDS *boids)
 		
 		if(boids[i].positions[1] > height){
 			boids[i].positions[1] = 10;
+			
 			boids[i].speed[0]=0;
 			boids[i].speed[1]=0;
 			
+			
 		}
 		
+		if((boids[i].positions[0]>=width/2-13)&&(boids[i].positions[0]<=(width/2+13)))
+		{
+			if((((boids[i].positions[1]>=50)&&(boids[i].positions[1]<=350))))
+			{
+			
+				//boids[i].positions[1] -= 30 ;
+				boids[i].positions[0] = width/2-30;
+				
+				
+				boids[i].speed[0]=-10;
+				boids[i].speed[1]=0;
+			}
+		}
+		
+	
 		
 	}
 }
@@ -242,7 +276,7 @@ void BoidsUpdate(BOIDS *boids){
 		//MoveTowardCenterOfMass(boids);
 		
 		
-#pragma omp parralel shared
+#pragma omp parralel private
 {
 		MoveTowardCenterOfMassLocal(boids);
 		CheckNearest(boids);
@@ -283,7 +317,7 @@ int main()
 		DrawBoids(renderer,&boids);
 		
 		BoidsUpdate(&boids);
-		SDL_Delay(1);
+		//SDL_Delay(1);
 		//system("pause");
 	}
 	DrawBoids(renderer,&boids);
