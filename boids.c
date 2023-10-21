@@ -22,12 +22,12 @@
 #undef main                //275 183
 
 
-#define width  1000
+#define width  800
 #define height 600
 #define Nboids 200
-#define factorV 1      //factor for speed 
-#define factorCm 100    //factor for movment tovord center of a mass
-#define radius 1000           //Grouping radius
+#define factorV 8      //factor for speed 
+#define factorCm 50    //factor for movment tovord center of a mass
+#define radius 100           //Grouping radius
 
 typedef struct BOIDS{
 	
@@ -40,7 +40,7 @@ typedef struct BOIDS{
 }BOIDS;
 
 float rand_neg(){
-	//return 1;
+	return 1;
 	if(rand()%2==0)
 		return -1.0*(rand()%2);
 	return rand()%6;
@@ -56,7 +56,7 @@ void RandomBoids(BOIDS *boids)
 	
 	for(size_t i = 0; i < Nboids; i++){
 		boids[i].positions[0] = (rand())%100;
-		boids[i].positions[1] = (rand())%100;
+		boids[i].positions[1] = rand()%100;
 	
 	
 	
@@ -76,20 +76,20 @@ void DrawBoids(SDL_Renderer *renderer,BOIDS *boids){
 	
 	SDL_Rect rect1,rect2;
 	rect1.x = width/2;
-	rect1.y = 50;
+	rect1.y = 0;
 	rect1.w = 10;
-	rect1.h = 300;
+	rect1.h = 380;
 	
 	rect2.x = width/2;
 	rect2.y = 450;
 	rect2.w = 10;
-	rect2.h = 100;
+	rect2.h = 200;
 	
 	
 	SDL_RenderClear(renderer);
 	SDL_SetRenderDrawColor(renderer,255,255,255,0);
 	SDL_RenderFillRect(renderer,&rect1);
-	//SDL_RenderFillRect(renderer,&rect2);
+	SDL_RenderFillRect(renderer,&rect2);
 	SDL_SetRenderDrawColor(renderer,255,255,255,255);
 
 
@@ -132,20 +132,28 @@ void MoveTowardCenterOfMassLocal(BOIDS *boids)
 
 	
 	for(size_t i = 0; i < Nboids; i++){
-		size_t count = 0;
+		size_t count = 1;
 		for(size_t j = 0; j < Nboids; j++){
-			float R = (boids[i].positions[0]-boids[j].positions[j])*(boids[i].positions[0]-boids[j].positions[j])+(boids[i].positions[1]-boids[j].positions[1])*(boids[i].positions[1]-boids[j].positions[1]);
-			if(R <= radius*radius){
+			//f//loat R = (boids[i].positions[0]-boids[j].positions[0])*(boids[i].positions[0]-boids[j].positions[0])+(boids[i].positions[1]-boids[j].positions[1])*(boids[i].positions[1]-boids[j].positions[1]);
+			//printf("R: %f \n",R);
+			if(((boids[i].positions[0]-boids[j].positions[0] <= radius)||((boids[i].positions[1]-boids[j].positions[1])<=radius))&&(i!=j)){
 				Cmass[0][i]+=boids[j].positions[0];
 				Cmass[1][i]+=boids[j].positions[1];
 				count++;
 			}
-			//printf("C1 %f C2 %f\n",Cmass[0][i],Cmass[1][i] );
+		
 			//system("pause");
 		}
 			Cmass[0][i]/=count;
 			Cmass[1][i]/=count;
+			//Cmass[0][i]+=300;
+			//Cmass[1][i]-=300;
+			//printf("C1 %f C2 %f\n",Cmass[0][i],Cmass[1][i] );
 		}
+		
+		//printf("C1 %f C2 %f\n",Cmass[0][i],Cmass[1][i] );
+			
+		
 		for(size_t i = 0; i < Nboids; i++){
 			boids[i].speed[0]+=(int)Cmass[0][i] / factorCm+rand_neg();
 			boids[i].speed[1]+=(int)Cmass[1][i] / factorCm+rand_neg();
@@ -238,7 +246,7 @@ void CheckBoundury(BOIDS *boids)
 		if(boids[i].positions[1] < 0){
 			boids[i].positions[1] = height-10;
 			
-			boids[i].speed[0]=0;
+			boids[i].speed[0]=10;
 			boids[i].speed[1]=0;
 			
 		}
@@ -246,7 +254,7 @@ void CheckBoundury(BOIDS *boids)
 		if(boids[i].positions[1] > height){
 			boids[i].positions[1] = 10;
 			
-			boids[i].speed[0]=0;
+			boids[i].speed[0]=10;
 			boids[i].speed[1]=0;
 			
 			
@@ -254,7 +262,20 @@ void CheckBoundury(BOIDS *boids)
 		
 		if((boids[i].positions[0]>=width/2-13)&&(boids[i].positions[0]<=(width/2+13)))
 		{
-			if((((boids[i].positions[1]>=50)&&(boids[i].positions[1]<=350))))
+			if((((boids[i].positions[1]>=0)&&(boids[i].positions[1]<=380))))
+			{
+			
+				//boids[i].positions[1] -= 30 ;
+				boids[i].positions[0] = width/2-30;
+				
+				
+				boids[i].speed[0]=-10;
+				boids[i].speed[1]=0;
+			}
+			
+			
+			
+				if((((boids[i].positions[1]>=450)&&(boids[i].positions[1]<=650))))
 			{
 			
 				//boids[i].positions[1] -= 30 ;
@@ -278,6 +299,7 @@ void BoidsUpdate(BOIDS *boids){
 		
 #pragma omp parralel private
 {
+	
 		MoveTowardCenterOfMassLocal(boids);
 		CheckNearest(boids);
 	    UpdateSpeed(boids);
