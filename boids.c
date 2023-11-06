@@ -39,12 +39,28 @@ typedef struct BOIDS{
 	
 }BOIDS;
 
+typedef struct PREDATOR{
+	int positions[2];
+	int speed[2];
+	SDL_Rect draw;
+	
+	
+}PREDATOR;
+
+
+
 float rand_neg(){
 	return 1;
 	if(rand()%2==0)
 		return -1.0*(rand()%2);
 	return rand()%6;
 }
+
+
+
+
+
+
 void RandomBoids(BOIDS *boids)
 {
 	srand(time(0));
@@ -74,22 +90,11 @@ void RandomBoids(BOIDS *boids)
 void DrawBoids(SDL_Renderer *renderer,BOIDS *boids){
 	
 	
-	SDL_Rect rect1,rect2;
-	rect1.x = width/2;
-	rect1.y = 0;
-	rect1.w = 10;
-	rect1.h = 380;
-	
-	rect2.x = width/2;
-	rect2.y = 450;
-	rect2.w = 10;
-	rect2.h = 200;
-	
 	
 	SDL_RenderClear(renderer);
 	SDL_SetRenderDrawColor(renderer,255,255,255,0);
-	SDL_RenderFillRect(renderer,&rect1);
-	SDL_RenderFillRect(renderer,&rect2);
+	//SDL_RenderFillRect(renderer,&rect1);
+	//SDL_RenderFillRect(renderer,&rect2);
 	SDL_SetRenderDrawColor(renderer,255,255,255,255);
 
 
@@ -259,44 +264,12 @@ void CheckBoundury(BOIDS *boids)
 			
 			
 		}
-		
-		if((boids[i].positions[0]>=width/2-13)&&(boids[i].positions[0]<=(width/2+13)))
-		{
-			if((((boids[i].positions[1]>=0)&&(boids[i].positions[1]<=380))))
-			{
-			
-				//boids[i].positions[1] -= 30 ;
-				boids[i].positions[0] = width/2-30;
-				
-				
-				boids[i].speed[0]=-10;
-				boids[i].speed[1]=0;
-			}
-			
-			
-			
-				if((((boids[i].positions[1]>=450)&&(boids[i].positions[1]<=650))))
-			{
-			
-				//boids[i].positions[1] -= 30 ;
-				boids[i].positions[0] = width/2-30;
-				
-				
-				boids[i].speed[0]=-10;
-				boids[i].speed[1]=0;
-			}
-		}
-		
 	
-		
-	}
 }
-
+}
 void BoidsUpdate(BOIDS *boids){
 	
-		//MoveTowardCenterOfMass(boids);
-		
-		
+		//MoveTowardCenterOfMass(boids)		
 #pragma omp parralel private
 {
 	
@@ -304,23 +277,15 @@ void BoidsUpdate(BOIDS *boids){
 		CheckNearest(boids);
 	    UpdateSpeed(boids);
 }
-	
-		
-		
-		for(size_t i = 0; i < Nboids; i++){
-		
-			
+		for(size_t i = 0; i < Nboids; i++){			
 		boids[i].positions[1]+=boids[i].speed[1];
 		boids[i].positions[0]+=boids[i].speed[0];
-		
-		
 		if(boids[i].speed[0]>5)
 			boids[i].speed[0]=0;
 		if(boids[i].speed[1]>5)
 			boids[i].speed[1]=0;
 		}
 		CheckBoundury(boids);
-
 }
 
 
@@ -336,10 +301,12 @@ int main()
 	BOIDS boids[Nboids];
 	RandomBoids(&boids);
 	while(1){
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {}
 		DrawBoids(renderer,&boids);
 		
 		BoidsUpdate(&boids);
-		//SDL_Delay(1);
+		SDL_Delay(1);
 		//system("pause");
 	}
 	DrawBoids(renderer,&boids);
