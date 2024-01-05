@@ -9,8 +9,8 @@
 #include<SDL2/SDL_surface.h>
 #include<SDL2/SDL_clipboard.h>
 #include<SDL2/SDL_events.h>
-#include<SDL2/SDL_image.h>
-#include<SDL2/SDl_timer.h>
+//#include<SDL2/SDL_image.h>
+//#include<SDL2/SDl_timer.h>
 #include<assert.h>
 #include<stdint.h>
 #include<string.h>
